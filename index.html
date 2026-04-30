@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LogoSearch — Biblioteca Clínica Existencial</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #F5F0E8;
+  --cream-dark: #EDE6D6;
+  --cream-border: #D8CEB8;
+  --forest: #2D5016;
+  --forest-light: #3D6B20;
+  --forest-pale: #EBF2E3;
+  --forest-mid: #6B9A3E;
+  --ink: #1A1A14;
+  --ink-mid: #3D3D30;
+  --ink-light: #6B6B58;
+  --ink-faint: #9B9B82;
+  --purple-soft: #6B5B8B;
+  --amber-soft: #8B6B2A;
+  --blue-soft: #2A5B8B;
+  --red-soft: #8B3030;
+  --white: #FFFFFF;
+  --card-bg: #FDFAF4;
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* LAYOUT */
+.app { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+}
+
+.logo {
+  padding: 28px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.logo-mark {
+  font-family: 'Lora', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #F5F0E8;
+  letter-spacing: -0.5px;
+}
+
+.logo-mark span {
+  color: #6B9A3E;
+}
+
+.logo-sub {
+  font-size: 10px;
+  color: rgba(245,240,232,0.4);
+  margin-top: 3px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.nav { padding: 16px 0; flex: 1; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  font-size: 13px;
+  color: rgba(245,240,232,0.55);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all .15s;
+}
+
+.nav-item:hover { color: rgba(245,240,232,0.85); background: rgba(255,255,255,0.04); }
+
+.nav-item.active {
+  color: #F5F0E8;
+  border-left-color: #6B9A3E;
+  background: rgba(107,154,62,0.1);
+}
+
+.nav-icon { width: 16px; height: 16px; opacity: .7; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+
+.nav-section-label {
+  font-size: 10px;
+  color: rgba(245,240,232,0.25);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 16px 20px 6px;
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.plan-badge {
+  background: rgba(107,154,62,0.15);
+  border: 1px solid rgba(107,154,62,0.3);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: #6B9A3E;
+}
+
+.plan-badge strong { display: block; font-size: 12px; color: #8FBF5A; margin-bottom: 2px; }
+
+/* MAIN */
+.main {
+  margin-left: 220px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TOPBAR */
+.topbar {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--cream-border);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-title {
+  font-family: 'Lora', serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--forest-pale);
+  border: 1px solid var(--cream-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 500; color: var(--forest);
+}
+
+/* PAGES */
+.page { display: none; padding: 32px; }
+.page.active { display: block; }
+
+/* SEARCH PAGE */
+.search-hero { margin-bottom: 28px; }
+.search-hero h1 {
+  font-family: 'Lora', serif;
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.search-hero p { font-size: 14px; color: var(--ink-light); }
+
+.search-box-wrap {
+  background: var(--card-bg);
+  border: 1px solid var(--cream-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.mode-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+.mode-tab {
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 20px;
+  cursor: pointer;
+  border: 1px solid var(--cream-border);
+  background: transparent;
+  color: var(--ink-light);
+  font-family: 'DM Sans', sans-serif;
+  transition: all .15s;
+}
+.mode-tab.active {
+  background: var(--forest);
+  color: #F5F0E8;
+  border-color: var(--forest);
+}
+
+.search-input-row { display: flex; gap: 10px; align-items: flex-start; }
+
+.search-textarea {
+  flex: 1;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  border: 1px solid var(--cream-border);
+  border-radius: var(--radius-sm);
+  background: var(--cream);
+  color: var(--ink);
+  resize: none;
+  min-height: 52px;
+  outline: none;
+  transition: border-color .15s;
+  line-height: 1.5;
+}
+.search-textarea:focus { border-color: var(--forest-mid); }
+
+.search-btn {
+  padding: 12px 20px;
+  background: var(--forest);
+  color: #F5F0E8;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+  min-height: 52px;
+}
+.search-btn:hover { background: var(--forest-light); }
+.search-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cream-border); align-items: center; }
+.filter-label { font-size: 11px; color: var(--ink-faint); }
+.filter-chip {
+  padding: 4px 12px;
+  font-size: 11px;
+  border: 1px solid var(--cream-border);
+  border-radius: 20px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink-light);
+  font-family: 'DM Sans', sans-serif;
+  transition: all .12s;
+}
+.filter-chip:hover { border-color: var(--forest-mid); color: var(--forest); }
+.filter-chip.on { background: var(--forest-pale); border-color: var(--forest-mid); color: var(--forest); }
+
+.quick-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
+.quick-tag {
+  padding: 5px 14px;
+  font-size: 12px;
+  border: 1px solid var(--cream-border);
+  border-radius: 20px;
+  cursor: pointer;
+  background: var(--card-bg);
+  color: var(--ink-mid);
+  font-family: 'DM Sans', sans-serif;
+  transition: all .12s;
+}
+.quick-tag:hover { background: var(--forest-pale); border-color: var(--forest-mid); color: var(--forest); }
+
+/* RESULTS */
+.results-header {
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.results-summary {
+  background: var(--forest-pale);
+  border: 1px solid #C5DBA8;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--forest);
+  margin-bottom: 16px;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.result-card {
+  background: var(--card-bg);
+  border: 1px solid var(--cream-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 12px;
+  transition: border-color .15s;
+}
+.result-card:hover { border-color: #C5DBA8; }
+
+.result-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+.author-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.badge-frankl { background: #EBF2E3; color: #2D5016; }
+.badge-yalom  { background: #EEEDFE; color: #3C3489; }
+.badge-may    { background: #FAEEDA; color: #633806; }
+.badge-boss   { background: #E6F1FB; color: #0C447C; }
+
+.result-book { font-size: 12px; color: var(--ink-light); font-style: italic; }
+.result-chapter { font-size: 11px; color: var(--ink-faint); }
+
+.relevance-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.dot-high { background: #6B9A3E; }
+.dot-mid  { background: #B8A060; }
+
+.excerpt {
+  font-family: 'Lora', serif;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--ink-mid);
+  border-left: 3px solid var(--cream-border);
+  padding-left: 16px;
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.context-text {
+  font-size: 13px;
+  color: var(--ink-light);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.result-actions { display: flex; gap: 8px; }
+.action-btn {
+  padding: 5px 12px;
+  font-size: 11px;
+  border: 1px solid var(--cream-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink-light);
+  font-family: 'DM Sans', sans-serif;
+  transition: all .12s;
+}
+.action-btn:hover { background: var(--cream-dark); color: var(--ink); }
+.action-btn.saved { background: var(--forest-pale); border-color: var(--forest-mid); color: var(--forest); }
+
+/* LOADING */
+.loading-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--ink-faint);
+}
+.loading-spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--cream-border);
+  border-top-color: var(--forest);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--ink-faint);
+  font-size: 14px;
+}
+
+/* CADERNO PAGE */
+.page-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.page-header h2 {
+  font-family: 'Lora', serif;
+  font-size: 22px;
+  font-weight: 500;
+}
+.count-badge {
+  background: var(--cream-dark);
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--ink-light);
+}
+
+.note-card {
+  background: var(--card-bg);
+  border: 1px solid var(--cream-border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 10px;
+}
+.note-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.note-excerpt {
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-mid);
+  border-left: 3px solid var(--cream-border);
+  padding-left: 14px;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+.note-annotation {
+  font-size: 12px;
+  color: var(--ink-light);
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.note-date { font-size: 11px; color: var(--ink-faint); }
+.delete-btn {
+  margin-left: auto;
+  padding: 3px 8px;
+  font-size: 11px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink-faint);
+  font-family: 'DM Sans', sans-serif;
+}
+.delete-btn:hover { border-color: #E24B4A; color: #A32D2D; }
+
+/* TRILHAS PAGE */
+.trilhas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.trilha-card {
+  background: var(--card-bg);
+  border: 1px solid var(--cream-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.trilha-card:hover { border-color: #C5DBA8; background: var(--forest-pale); }
+.trilha-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+.trilha-title { font-size: 15px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+.trilha-desc { font-size: 12px; color: var(--ink-light); line-height: 1.5; margin-bottom: 10px; }
+.trilha-meta { font-size: 11px; color: var(--ink-faint); display: flex; gap: 12px; }
+.progress-bar { height: 3px; background: var(--cream-border); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--forest-mid); border-radius: 2px; transition: width .3s; }
+
+/* AUTORES PAGE */
+.autores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.autor-card {
+  background: var(--card-bg);
+  border: 1px solid var(--cream-border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.autor-header { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+.autor-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 500; flex-shrink: 0;
+}
+.autor-name { font-size: 16px; font-weight: 500; font-family: 'Lora', serif; color: var(--ink); margin-bottom: 2px; }
+.autor-years { font-size: 11px; color: var(--ink-faint); }
+.autor-bio { font-size: 12px; color: var(--ink-light); line-height: 1.6; margin-bottom: 12px; }
+.obras-title { font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.obra-item { font-size: 12px; color: var(--ink-mid); padding: 4px 0; border-bottom: 1px solid var(--cream-border); display: flex; align-items: center; gap: 6px; }
+.obra-item:last-child { border-bottom: none; }
+.obra-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+/* MODO SESSÃO */
+.session-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(26,26,20,0.92);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.session-overlay.open { display: flex; }
+.session-modal {
+  background: var(--ink);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 28px;
+  width: 560px;
+  max-width: 96vw;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.session-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.session-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #6B9A3E;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.session-title { font-size: 14px; font-weight: 500; color: rgba(245,240,232,.8); }
+.session-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: rgba(245,240,232,.4);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+.session-input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #F5F0E8;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  margin-bottom: 12px;
+}
+.session-input::placeholder { color: rgba(245,240,232,.3); }
+.session-input:focus { border-color: rgba(107,154,62,.5); }
+.session-search-btn {
+  width: 100%;
+  background: var(--forest);
+  color: #F5F0E8;
+  border: none;
+  border-radius: 8px;
+  padding: 11px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+.session-result {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.session-badge { font-size: 10px; color: #6B9A3E; font-weight: 500; letter-spacing: .06em; margin-bottom: 8px; }
+.session-excerpt {
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  color: rgba(245,240,232,.85);
+  line-height: 1.7;
+  font-style: italic;
+  border-left: 2px solid rgba(107,154,62,.4);
+  padding-left: 12px;
+  margin-bottom: 8px;
+}
+.session-context { font-size: 12px; color: rgba(245,240,232,.45); line-height: 1.5; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--ink);
+  color: #F5F0E8;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid rgba(107,154,62,.3);
+  z-index: 300;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all .2s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* MODAL ANOTAÇÃO */
+.annotation-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(26,26,20,0.6);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.annotation-modal.open { display: flex; }
+.annotation-box {
+  background: var(--card-bg);
+  border: 1px solid var(--cream-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 480px;
+  max-width: 96vw;
+}
+.annotation-box h3 { font-family: 'Lora', serif; font-size: 16px; margin-bottom: 8px; }
+.annotation-box p { font-size: 12px; color: var(--ink-light); margin-bottom: 14px; line-height: 1.5; border-left: 3px solid var(--cream-border); padding-left: 10px; font-style: italic; }
+.annotation-textarea {
+  width: 100%;
+  border: 1px solid var(--cream-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  resize: none;
+  height: 80px;
+  outline: none;
+  margin-bottom: 14px;
+}
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-cancel {
+  padding: 7px 16px;
+  font-size: 13px;
+  border: 1px solid var(--cream-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink-light);
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-save {
+  padding: 7px 16px;
+  font-size: 13px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--forest);
+  color: #F5F0E8;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* UTILS */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">Logo<span>Search</span></div>
+    <div class="logo-sub">Biblioteca Clínica Existencial</div>
+  </div>
+
+  <div style="padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.08);">
+    <div style="font-size:9px;color:rgba(245,240,232,.3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;">API Key</div>
+    <input id="api-key-input" type="password" placeholder="sk-ant-..." style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:5px;padding:6px 8px;font-size:11px;color:#F5F0E8;font-family:'DM Sans',sans-serif;outline:none;" oninput="saveKey(this.value)">
+    <div id="key-status" style="font-size:9px;margin-top:4px;color:rgba(245,240,232,.25);">Cole sua chave Anthropic</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active" onclick="goTo('busca')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="6.5" cy="6.5" r="4"/><path d="M10 10l3 3" stroke-linecap="round"/>
+      </svg>
+      Busca
+    </div>
+    <div class="nav-item" onclick="goTo('caderno')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h4" stroke-linecap="round"/>
+      </svg>
+      Caderno clínico
+    </div>
+    <div class="nav-item" onclick="goTo('trilhas')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M2 4h12M2 8h8M2 12h10" stroke-linecap="round"/>
+      </svg>
+      Trilhas de estudo
+    </div>
+
+    <div class="nav-section-label">Base de autores</div>
+    <div class="nav-item" onclick="goTo('autores')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="5" r="3"/><path d="M2 13c0-3 2.5-5 6-5s6 2 6 5" stroke-linecap="round"/>
+      </svg>
+      Autores
+    </div>
+
+    <div style="margin-top: 16px; padding: 0 12px;">
+      <div onclick="openSession()" style="
+        display: flex; align-items: center; gap: 8px;
+        padding: 9px 12px;
+        background: rgba(107,154,62,0.15);
+        border: 1px solid rgba(107,154,62,0.25);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all .15s;
+        font-size: 12px; color: #8FBF5A; font-weight: 500;
+      " onmouseover="this.style.background='rgba(107,154,62,0.22)'" onmouseout="this.style.background='rgba(107,154,62,0.15)'">
+        <span style="width:7px;height:7px;border-radius:50%;background:#6B9A3E;flex-shrink:0;"></span>
+        Modo sessão
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="plan-badge">
+      <strong>Plano Clínico</strong>
+      4 autores · R$ 79/mês
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span class="topbar-title" id="topbar-title">Busca semântica</span>
+    <div class="topbar-right">
+      <div class="avatar">PS</div>
+    </div>
+  </div>
+
+  <!-- BUSCA PAGE -->
+  <div class="page active" id="page-busca">
+    <div class="search-hero">
+      <h1>O que você quer explorar?</h1>
+      <p>Busque por tema clínico, conceito ou faça uma pergunta sobre as obras dos autores</p>
+    </div>
+
+    <div class="search-box-wrap">
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tab-livre" onclick="setMode('livre')">Pergunta livre</button>
+        <button class="mode-tab" id="tab-conceito" onclick="setMode('conceito')">Conceito</button>
+        <button class="mode-tab" id="tab-caso" onclick="setMode('caso')">Por caso clínico</button>
+      </div>
+
+      <div class="search-input-row">
+        <textarea class="search-textarea" id="search-input" rows="2"
+          placeholder="Ex: O que Frankl e Yalom dizem sobre pacientes que perderam o sentido de viver?"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();doSearch();}"></textarea>
+        <button class="search-btn" id="search-btn" onclick="doSearch()">Buscar</button>
+      </div>
+
+      <div class="filter-row">
+        <span class="filter-label">Autores:</span>
+        <button class="filter-chip on" data-author="frankl" onclick="toggleFilter(this)">Frankl</button>
+        <button class="filter-chip on" data-author="yalom" onclick="toggleFilter(this)">Yalom</button>
+        <button class="filter-chip on" data-author="may" onclick="toggleFilter(this)">Rollo May</button>
+        <button class="filter-chip on" data-author="boss" onclick="toggleFilter(this)">Medard Boss</button>
+      </div>
+    </div>
+
+    <div class="quick-tags" id="quick-tags">
+      <span style="font-size:11px;color:var(--ink-faint);align-self:center;">Temas frequentes:</span>
+      <button class="quick-tag" onclick="quickSearch('sentido da vida e propósito existencial')">Sentido da vida</button>
+      <button class="quick-tag" onclick="quickSearch('sofrimento e dor como parte da existência')">Sofrimento</button>
+      <button class="quick-tag" onclick="quickSearch('liberdade e responsabilidade humana')">Liberdade</button>
+      <button class="quick-tag" onclick="quickSearch('vácuo existencial e tédio')">Vácuo existencial</button>
+      <button class="quick-tag" onclick="quickSearch('morte e finitude como motivador')">Morte e finitude</button>
+      <button class="quick-tag" onclick="quickSearch('amor como encontro existencial')">Amor</button>
+      <button class="quick-tag" onclick="quickSearch('ansiedade existencial e neurose')">Ansiedade</button>
+      <button class="quick-tag" onclick="quickSearch('culpa e responsabilidade')">Culpa</button>
+      <button class="quick-tag" onclick="quickSearch('intenção paradoxal técnica terapêutica')">Intenção paradoxal</button>
+      <button class="quick-tag" onclick="quickSearch('solidão e isolamento existencial')">Solidão</button>
+    </div>
+
+    <div id="results-area">
+      <div class="empty-state">
+        <div style="font-size:32px;margin-bottom:12px;opacity:.3;">◈</div>
+        <div>Busque um conceito ou tema clínico para começar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CADERNO PAGE -->
+  <div class="page" id="page-caderno">
+    <div class="page-header">
+      <h2>Caderno clínico</h2>
+      <span class="count-badge" id="caderno-count">0 trechos</span>
+    </div>
+
+    <div id="caderno-empty" class="empty-state">
+      <div style="font-size:32px;margin-bottom:12px;opacity:.3;">◇</div>
+      <div>Salve trechos durante a busca para encontrá-los aqui</div>
+    </div>
+    <div id="caderno-list"></div>
+  </div>
+
+  <!-- TRILHAS PAGE -->
+  <div class="page" id="page-trilhas">
+    <div class="page-header">
+      <h2>Trilhas de estudo</h2>
+    </div>
+    <p style="font-size:13px;color:var(--ink-light);margin-bottom:24px;">Sequências temáticas curadas para aprofundamento clínico sistematizado.</p>
+
+    <div class="trilhas-grid">
+      <div class="trilha-card" onclick="searchTrilha('morte finitude existência Frankl Yalom')">
+        <div class="trilha-icon" style="background:#EBF2E3;">🌿</div>
+        <div class="trilha-title">Morte e finitude</div>
+        <div class="trilha-desc">Da negação à integração da morte como motivador existencial — Frankl e Yalom em diálogo</div>
+        <div class="trilha-meta"><span>8 trechos</span><span>Frankl · Yalom</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="trilha-card" onclick="searchTrilha('sentido da vida logoterapia vontade de sentido')">
+        <div class="trilha-icon" style="background:#EEEDFE;">◈</div>
+        <div class="trilha-title">Vontade de sentido</div>
+        <div class="trilha-desc">A busca por sentido como força motivacional primária — da teoria à técnica clínica</div>
+        <div class="trilha-meta"><span>12 trechos</span><span>Frankl · May</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="trilha-card" onclick="searchTrilha('ansiedade existencial neurose angústia May Frankl')">
+        <div class="trilha-icon" style="background:#FAEEDA;">◎</div>
+        <div class="trilha-title">Ansiedade existencial</div>
+        <div class="trilha-desc">Distinguindo ansiedade normal de neurótica — abordagem existencial e técnicas de manejo</div>
+        <div class="trilha-meta"><span>9 trechos</span><span>May · Frankl</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="trilha-card" onclick="searchTrilha('amor encontro relação terapêutica Yalom Boss')">
+        <div class="trilha-icon" style="background:#E6F1FB;">◇</div>
+        <div class="trilha-title">Amor e encontro</div>
+        <div class="trilha-desc">O papel do amor na existência e a relação terapêutica como encontro genuíno</div>
+        <div class="trilha-meta"><span>7 trechos</span><span>Yalom · Boss</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="trilha-card" onclick="searchTrilha('liberdade responsabilidade escolha existencial')">
+        <div class="trilha-icon" style="background:#F1EFE8;">△</div>
+        <div class="trilha-title">Liberdade e responsabilidade</div>
+        <div class="trilha-desc">A liberdade como condição e fardo — da filosofia à clínica existencial</div>
+        <div class="trilha-meta"><span>10 trechos</span><span>Todos os autores</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="trilha-card" onclick="searchTrilha('isolamento solidão existencial relações humanas')">
+        <div class="trilha-icon" style="background:#FBEAF0;">○</div>
+        <div class="trilha-title">Isolamento existencial</div>
+        <div class="trilha-desc">A solidão fundamental do ser — e como a clínica cria pontes sem negar o abismo</div>
+        <div class="trilha-meta"><span>8 trechos</span><span>Yalom · May</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTORES PAGE -->
+  <div class="page" id="page-autores">
+    <div class="page-header"><h2>Base de autores</h2></div>
+    <p style="font-size:13px;color:var(--ink-light);margin-bottom:24px;">Os quatro pilares da psicologia existencial indexados na plataforma.</p>
+
+    <div class="autores-grid">
+      <div class="autor-card">
+        <div class="autor-header">
+          <div class="autor-avatar" style="background:#EBF2E3;color:#2D5016;">VF</div>
+          <div>
+            <div class="autor-name">Viktor Frankl</div>
+            <div class="autor-years">1905 – 1997 · Viena, Áustria</div>
+          </div>
+        </div>
+        <div class="autor-bio">Psiquiatra e neurologista, fundador da Logoterapia. Sobrevivente de Auschwitz, desenvolveu sua teoria a partir da experiência nos campos de concentração nazistas, propondo que a busca de sentido é a motivação primária do ser humano.</div>
+        <div class="obras-title">Obras indexadas</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#6B9A3E"></div>Em Busca de Sentido</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#6B9A3E"></div>A Vontade de Sentido</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#6B9A3E"></div>Psicoterapia e Existencialismo</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#6B9A3E"></div>A Presença Ignorada de Deus</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#6B9A3E"></div>Logoterapia e Análise Existencial</div>
+      </div>
+
+      <div class="autor-card">
+        <div class="autor-header">
+          <div class="autor-avatar" style="background:#EEEDFE;color:#3C3489;">IY</div>
+          <div>
+            <div class="autor-name">Irvin Yalom</div>
+            <div class="autor-years">1931 – presente · Washington, EUA</div>
+          </div>
+        </div>
+        <div class="autor-bio">Psiquiatra e escritor, professor emérito em Stanford. Desenvolveu a psicoterapia existencial a partir das quatro preocupações definitivas: morte, liberdade, isolamento e falta de sentido. Conhecido por tornar a filosofia existencial clinicamente acessível.</div>
+        <div class="obras-title">Obras indexadas</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#7F77DD"></div>Psicoterapia Existencial</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#7F77DD"></div>O Dom da Terapia</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#7F77DD"></div>Quando Nietzsche Chorou</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#7F77DD"></div>A Cura de Schopenhauer</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#7F77DD"></div>Olhando para o Sol</div>
+      </div>
+
+      <div class="autor-card">
+        <div class="autor-header">
+          <div class="autor-avatar" style="background:#FAEEDA;color:#633806;">RM</div>
+          <div>
+            <div class="autor-name">Rollo May</div>
+            <div class="autor-years">1909 – 1994 · Ohio, EUA</div>
+          </div>
+        </div>
+        <div class="autor-bio">Pioneiro da psicologia humanista-existencial americana. Introduziu o pensamento existencial europeu na clínica norte-americana, com foco especial na ansiedade, na criatividade e no papel do amor e da vontade na existência humana.</div>
+        <div class="obras-title">Obras indexadas</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#EF9F27"></div>O Homem à Procura de Si Mesmo</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#EF9F27"></div>A Coragem de Criar</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#EF9F27"></div>Amor e Vontade</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#EF9F27"></div>O Significado da Ansiedade</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#EF9F27"></div>Existence (org.)</div>
+      </div>
+
+      <div class="autor-card">
+        <div class="autor-header">
+          <div class="autor-avatar" style="background:#E6F1FB;color:#0C447C;">MB</div>
+          <div>
+            <div class="autor-name">Medard Boss</div>
+            <div class="autor-years">1903 – 1990 · Basel, Suíça</div>
+          </div>
+        </div>
+        <div class="autor-bio">Psiquiatra suíço e criador da Daseinsanálise. Discípulo de Heidegger, desenvolveu uma psicoterapia baseada na ontologia fundamental, propondo que a doença mental é uma restrição das possibilidades existenciais do ser-no-mundo.</div>
+        <div class="obras-title">Obras indexadas</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#378ADD"></div>Existential Foundations of Medicine</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#378ADD"></div>Psychoanalysis and Daseinsanalysis</div>
+        <div class="obra-item"><div class="obra-dot" style="background:#378ADD"></div>The Analysis of Dreams</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- MODO SESSÃO -->
+<div class="session-overlay" id="session-overlay">
+  <div class="session-modal">
+    <div class="session-header">
+      <div class="session-dot"></div>
+      <span class="session-title">Modo sessão — busca rápida</span>
+      <button class="session-close" onclick="closeSession()">×</button>
+    </div>
+    <input class="session-input" id="session-input" placeholder="Busca rápida durante a sessão..."
+      onkeydown="if(event.key==='Enter')doSessionSearch()">
+    <button class="session-search-btn" onclick="doSessionSearch()">Buscar nas obras</button>
+    <div id="session-results"></div>
+  </div>
+</div>
+
+<!-- MODAL ANOTAÇÃO -->
+<div class="annotation-modal" id="annotation-modal">
+  <div class="annotation-box">
+    <h3>Salvar no caderno</h3>
+    <p id="modal-excerpt-preview"></p>
+    <textarea class="annotation-textarea" id="annotation-text" placeholder="Adicione uma anotação clínica (opcional)..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAnnotation()">Cancelar</button>
+      <button class="btn-save" onclick="confirmSave()">Salvar trecho</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// STATE
+let currentMode = 'livre';
+let activeAuthors = new Set(['frankl','yalom','may','boss']);
+let caderno = JSON.parse(localStorage.getItem('logosearch_caderno') || '[]');
+let pendingSave = null;
+
+function saveKey(val) {
+  localStorage.setItem('ls_apikey', val);
+  const st = document.getElementById('key-status');
+  if (val.startsWith('sk-ant-')) {
+    st.textContent = '✓ Chave válida';
+    st.style.color = '#6B9A3E';
+  } else if (val.length > 0) {
+    st.textContent = 'Formato inválido';
+    st.style.color = '#E24B4A';
+  } else {
+    st.textContent = 'Cole sua chave Anthropic';
+    st.style.color = 'rgba(245,240,232,.25)';
+  }
+}
+
+function getKey() {
+  return localStorage.getItem('ls_apikey') || '';
+}
+
+// Carrega key salva
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = getKey();
+  if (saved) {
+    document.getElementById('api-key-input').value = saved;
+    saveKey(saved);
+  }
+});
+
+// NAV
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const items = document.querySelectorAll('.nav-item');
+  const labels = { busca: 'Busca semântica', caderno: 'Caderno clínico', trilhas: 'Trilhas de estudo', autores: 'Base de autores' };
+  document.getElementById('topbar-title').textContent = labels[page] || '';
+
+  items.forEach(item => {
+    if (item.getAttribute('onclick') && item.getAttribute('onclick').includes("'" + page + "'")) {
+      item.classList.add('active');
+    }
+  });
+
+  if (page === 'caderno') renderCaderno();
+}
+
+// SEARCH MODE
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + mode).classList.add('active');
+  const placeholders = {
+    livre: 'Ex: O que Frankl e Yalom dizem sobre pacientes que perderam o sentido de viver?',
+    conceito: 'Ex: vácuo existencial, intenção paradoxal, ansiedade existencial...',
+    caso: 'Ex: paciente em luto existencial após aposentadoria, sem projetos de vida'
+  };
+  document.getElementById('search-input').placeholder = placeholders[mode];
+}
+
+function toggleFilter(btn) {
+  const author = btn.dataset.author;
+  if (activeAuthors.has(author)) {
+    if (activeAuthors.size === 1) return;
+    activeAuthors.delete(author);
+    btn.classList.remove('on');
+  } else {
+    activeAuthors.add(author);
+    btn.classList.add('on');
+  }
+}
+
+function quickSearch(q) {
+  document.getElementById('search-input').value = q;
+  doSearch();
+}
+
+function searchTrilha(q) {
+  goTo('busca');
+  document.getElementById('search-input').value = q;
+  setTimeout(doSearch, 100);
+}
+
+// MAIN SEARCH
+async function doSearch() {
+  const query = document.getElementById('search-input').value.trim();
+  if (!query) return;
+
+  const btn = document.getElementById('search-btn');
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  document.getElementById('quick-tags').classList.add('hidden');
+  document.getElementById('results-area').innerHTML = `
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <div>Consultando as obras...</div>
+    </div>`;
+
+  const authorsActive = [...activeAuthors].join(', ');
+  const modeInstructions = {
+    livre: 'O psicólogo fez uma pergunta aberta. Interprete semanticamente e encontre os trechos mais relevantes.',
+    conceito: 'O psicólogo buscou um conceito específico. Mostre ocorrências diretas do conceito nas obras.',
+    caso: 'O psicólogo descreveu um caso clínico. Encontre trechos teoricamente aplicáveis a esse caso.'
+  };
+
+  const systemPrompt = `Você é o motor de busca do LogoSearch, uma plataforma clínica para psicólogos que trabalham com psicologia existencial.
+
+Retorne APENAS JSON válido, sem nenhum texto antes ou depois:
+{
+  "summary": "Uma frase precisa sobre o que esses autores pensam sobre o tema",
+  "results": [
+    {
+      "author": "frankl" | "yalom" | "may" | "boss",
+      "authorName": "Nome completo",
+      "book": "Título exato do livro",
+      "chapter": "Capítulo ou seção",
+      "excerpt": "Paráfrase fiel e precisa do pensamento (2-4 frases, voz do autor)",
+      "context": "Aplicação clínica: como este trecho se aplica ao tema buscado (1-2 frases)",
+      "relevance": "alta" | "média"
+    }
+  ]
+}
+
+Autores disponíveis (use apenas os filtrados): ${authorsActive}
+Autores reais: Viktor Frankl, Irvin Yalom, Rollo May, Medard Boss
+Obras reais de cada autor apenas.
+Retorne 3 a 5 resultados, priorizando os mais relevantes.
+${modeInstructions[currentMode]}
+Seja preciso e clinicamente útil. Trechos devem soar como o pensamento real do autor.`;
+
+  const apiKey = getKey();
+  if (!apiKey.startsWith('sk-ant-')) {
+    document.getElementById('results-area').innerHTML = '<div class="empty-state" style="color:#8B3030;">Cole sua chave Anthropic (sk-ant-...) na barra lateral.</div>';
+    btn.disabled = false; btn.textContent = 'Buscar';
+    return;
+  }
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: `Modo: ${currentMode}\nBusca: "${query}"` }]
+      })
+    });
+
+    const data = await resp.json();
+    const text = data.content.map(i => i.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    renderResults(parsed);
+  } catch(e) {
+    document.getElementById('results-area').innerHTML = `<div class="empty-state">Erro ao buscar. Tente novamente.</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Buscar';
+}
+
+function getBadgeClass(author) {
+  return { frankl: 'badge-frankl', yalom: 'badge-yalom', may: 'badge-may', boss: 'badge-boss' }[author] || 'badge-frankl';
+}
+
+function renderResults(data) {
+  const area = document.getElementById('results-area');
+  if (!data.results?.length) {
+    area.innerHTML = '<div class="empty-state">Nenhum resultado encontrado.</div>';
+    return;
+  }
+
+  let html = '';
+  if (data.summary) {
+    html += `<div class="results-summary">${data.summary}</div>`;
+  }
+  html += `<div class="results-header">${data.results.length} trechos encontrados</div>`;
+
+  data.results.forEach((r, i) => {
+    const badgeClass = getBadgeClass(r.author);
+    const dotClass = r.relevance === 'alta' ? 'dot-high' : 'dot-mid';
+    const excerptSafe = r.excerpt.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const bookSafe = r.book.replace(/'/g, '&#39;');
+    const chapterSafe = (r.chapter || '').replace(/'/g, '&#39;');
+    const authorSafe = r.authorName.replace(/'/g, '&#39;');
+
+    html += `
+      <div class="result-card" id="card-${i}">
+        <div class="result-meta">
+          <span class="author-badge ${badgeClass}">${r.authorName}</span>
+          <span class="result-book">${r.book}</span>
+          <span class="result-chapter">${r.chapter || ''}</span>
+          <span class="relevance-dot ${dotClass}" title="Relevância ${r.relevance}"></span>
+        </div>
+        <div class="excerpt">${r.excerpt}</div>
+        <div class="context-text">${r.context}</div>
+        <div class="result-actions">
+          <button class="action-btn" id="save-btn-${i}"
+            onclick="openAnnotation(${i}, '${excerptSafe.substring(0,120).replace(/'/g,"\\'")}...', '${bookSafe}', '${authorSafe}', '${chapterSafe}')">
+            Salvar no caderno
+          </button>
+          <button class="action-btn" onclick="copyExcerpt('${excerptSafe.substring(0,200).replace(/'/g,"\\'")} — ${authorSafe}, ${bookSafe}')">
+            Copiar
+          </button>
+        </div>
+      </div>`;
+  });
+
+  area.innerHTML = html;
+}
+
+// CADERNO
+function openAnnotation(idx, excerpt, book, author, chapter) {
+  pendingSave = { excerpt, book, author, chapter, date: new Date().toLocaleDateString('pt-BR') };
+  document.getElementById('modal-excerpt-preview').textContent = excerpt;
+  document.getElementById('annotation-text').value = '';
+  document.getElementById('annotation-modal').classList.add('open');
+}
+
+function closeAnnotation() {
+  document.getElementById('annotation-modal').classList.remove('open');
+  pendingSave = null;
+}
+
+function confirmSave() {
+  if (!pendingSave) return;
+  const annotation = document.getElementById('annotation-text').value.trim();
+  caderno.unshift({ ...pendingSave, annotation, id: Date.now() });
+  localStorage.setItem('logosearch_caderno', JSON.stringify(caderno));
+  closeAnnotation();
+  showToast('Trecho salvo no caderno');
+}
+
+function renderCaderno() {
+  const count = document.getElementById('caderno-count');
+  const empty = document.getElementById('caderno-empty');
+  const list = document.getElementById('caderno-list');
+
+  count.textContent = caderno.length + ' ' + (caderno.length === 1 ? 'trecho' : 'trechos');
+  if (!caderno.length) {
+    empty.style.display = 'block';
+    list.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  list.innerHTML = caderno.map(item => `
+    <div class="note-card">
+      <div class="note-meta">
+        <span class="author-badge badge-frankl" style="font-size:10px;">${item.author}</span>
+        <span class="result-book" style="font-size:11px;">${item.book}</span>
+        <button class="delete-btn" onclick="deleteNote(${item.id})">remover</button>
+      </div>
+      <div class="note-excerpt">${item.excerpt}</div>
+      ${item.annotation ? `<div class="note-annotation">Nota: ${item.annotation}</div>` : ''}
+      <div class="note-date">${item.date}</div>
+    </div>`).join('');
+}
+
+function deleteNote(id) {
+  caderno = caderno.filter(n => n.id !== id);
+  localStorage.setItem('logosearch_caderno', JSON.stringify(caderno));
+  renderCaderno();
+}
+
+// MODO SESSÃO
+function openSession() {
+  document.getElementById('session-overlay').classList.add('open');
+  document.getElementById('session-input').focus();
+}
+
+function closeSession() {
+  document.getElementById('session-overlay').classList.remove('open');
+}
+
+async function doSessionSearch() {
+  const query = document.getElementById('session-input').value.trim();
+  if (!query) return;
+
+  const btn = document.querySelector('.session-search-btn');
+  btn.textContent = 'Buscando...';
+  btn.disabled = true;
+  document.getElementById('session-results').innerHTML = '<div style="text-align:center;padding:20px;color:rgba(245,240,232,.3);font-size:13px;">consultando as obras...</div>';
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': getKey(),
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        system: `Você é um assistente de sessão clínica para psicólogos existenciais. Retorne APENAS JSON:
+{"results":[{"authorName":"Nome","book":"Livro","excerpt":"Trecho preciso (2-3 frases)","context":"Aplicação clínica (1 frase)"}]}
+Máximo 3 resultados. Seja rápido e preciso. Autores: Frankl, Yalom, May, Boss.`,
+        messages: [{ role: 'user', content: `Busca em sessão: "${query}"` }]
+      })
+    });
+
+    const data = await resp.json();
+    const text = data.content.map(i => i.text || '').join('');
+    const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+
+    const html = parsed.results.map(r => `
+      <div class="session-result">
+        <div class="session-badge">${r.authorName} · ${r.book}</div>
+        <div class="session-excerpt">${r.excerpt}</div>
+        <div class="session-context">${r.context}</div>
+      </div>`).join('');
+
+    document.getElementById('session-results').innerHTML = html;
+  } catch(e) {
+    document.getElementById('session-results').innerHTML = '<div style="text-align:center;color:rgba(245,240,232,.3);font-size:13px;padding:16px;">Erro. Tente novamente.</div>';
+  }
+
+  btn.textContent = 'Buscar nas obras';
+  btn.disabled = false;
+}
+
+// UTILS
+function copyExcerpt(text) {
+  navigator.clipboard.writeText(text).catch(() => {});
+  showToast('Copiado');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ESC fecha modais
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeSession();
+    closeAnnotation();
+  }
+});
+</script>
+</body>
+</html>
